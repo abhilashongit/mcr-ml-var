@@ -202,7 +202,7 @@ var_data_diff = var_data_diff.dropna()
 print(f"\nData shape after differencing: {var_data_diff.shape}")
 
 # ============================================================================
-# PHASE 3: VAR MODEL IMPLEMENTATION
+# PHASE 3: Implementing the VAR model
 # ============================================================================
 
 print("\n" + "=" * 80)
