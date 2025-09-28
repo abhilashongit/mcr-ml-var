@@ -1,7 +1,7 @@
 """
-VAR Model Implementation for Oil Price Analysis
-This script analyzes the relationship between global oil prices and multiple economic indicators
+var model for oil price analysis - reln bw oil prices (global) & econ. indcs - mltp
 """
+# importing all req libs (we used import warnings to make the code-process easier and debugging quicker)
 
 import pandas as pd
 import numpy as np
@@ -14,14 +14,12 @@ from statsmodels.tsa.johansen import coint_johansen
 import warnings
 warnings.filterwarnings('ignore')
 
-# Set display options for better output
+# disp params
 pd.set_option('display.max_columns', None)
 pd.set_option('display.width', 200)
 pd.set_option('display.max_rows', 100)
 
-# ============================================================================
-# PHASE 1: DATA PREPARATION AND LOADING
-# ============================================================================
+# PHASE 1 DATA PREP & LOAD/INSERTION
 
 print("=" * 80)
 print("PHASE 1: DATA PREPARATION AND LOADING")
@@ -31,21 +29,21 @@ print("=" * 80)
 print("\n--- Task 1.1: Loading Datasets ---")
 
 try:
-    # Load US oil prices dataset
+    # US oil prices dataset
     us_oil_df = pd.read_csv('crude oil us.csv', skiprows=8)
     print("✓ US oil prices dataset loaded successfully")
     
-    # Load EU oil prices dataset
+    # EU oil prices dataset
     eu_oil_df = pd.read_csv('crude oil eu.csv', skiprows=8)
     print("✓ EU oil prices dataset loaded successfully")
     
-    # Load Oil ML dataset
+    # Oil ML dataset
     oil_ml_df = pd.read_csv('oil_ml_data.csv')
     print("✓ Oil ML dataset loaded successfully")
     
 except Exception as e:
     print(f"Error loading datasets: {e}")
-    # Create sample data for demonstration if files not found
+    # Create sample data for demonstration as backup  if file nf
     print("\nCreating sample datasets for demonstration...")
     
     # Sample data creation
@@ -82,27 +80,26 @@ except Exception as e:
         'MCOILBRENTEU': np.random.uniform(25, 145, n)
     })
 
-# Display basic info about datasets
+# dataset glanceinfo
 print("\n--- Dataset Information ---")
 print(f"\nOil ML Dataset shape: {oil_ml_df.shape}")
 print(f"Columns: {list(oil_ml_df.columns)}")
 print(f"\nFirst 5 rows of Oil ML dataset:")
 print(oil_ml_df.head())
 
-# Check for missing values
+# misg val chkl
 print("\n--- Missing Values Check ---")
 print(f"Oil ML dataset missing values:\n{oil_ml_df.isnull().sum()}")
 
 # Task 1.2: Global Oil Price Variable Creation
 print("\n--- Task 1.2: Creating Global Oil Price Variable ---")
 
-# Convert Date columns to datetime
+# col date to dtime
 oil_ml_df['Date'] = pd.to_datetime(oil_ml_df['Date'])
 
-# For demonstration, we'll use the target_oil_price from oil_ml_df as global oil price
-# In real scenario, you might average US and EU prices or choose one
+# here use the target_oil_price from oil_ml_df as global oil price
 global_oil_price = oil_ml_df['target_oil_price'].copy()
-print(f"Global oil price variable created with {len(global_oil_price)} observations")
+print(f"Global oil price variable here created with {len(global_oil_price)} observations")
 
 # Task 1.3: Prepare Dependent Variables
 print("\n--- Task 1.3: Preparing Dependent Variables ---")
@@ -116,9 +113,7 @@ dependent_vars = ['global_pmi', 'oecd_oil_inventories', 'opec_production',
 print(f"Number of dependent variables: {len(dependent_vars)}")
 print(f"Dependent variables: {dependent_vars}")
 
-# ============================================================================
-# PHASE 2: DATA PREPROCESSING
-# ============================================================================
+# PHASE 2 DATA CLEAN/PREPROCESS
 
 print("\n" + "=" * 80)
 print("PHASE 2: DATA PREPROCESSING")
