@@ -1,6 +1,6 @@
 <div align="center">
 
-# 🚀 MCR-ML-VAR
+#  Macroeconomics Project ilc
 ### Machine Learning & Vector Autoregression Framework
 
 [![Version](https://img.shields.io/badge/version-0.1.0-blue.svg?style=for-the-badge&logo=github)](https://github.com/abhilashongit/mcr-ml-var)
@@ -30,7 +30,7 @@
 
 <br>
 
-## 📊 Overview
+##  Overview
 
 A cutting-edge **econometric modeling framework** combining Vector Autoregression (VAR) with XGBoost machine learning for multivariate time series forecasting. Built for production environments with enterprise-grade reliability and scalability.
 
@@ -41,17 +41,17 @@ A cutting-edge **econometric modeling framework** combining Vector Autoregressio
 
 <br>
 
-## ✨ What's New in v0.1.0
+##  What's New in v0.1.0
 
 <br>
 
-### 🎯 New Features
+###  New Features
 
 <table>
 <tr>
 <td width="50%">
 
-**🤖 VAR-XGBoost Ensemble**
+** VAR-XGBoost Ensemble**
 - 40% better forecasting accuracy
 - Automatic lag selection (AIC/BIC)
 - Eliminates manual tuning
@@ -59,7 +59,7 @@ A cutting-edge **econometric modeling framework** combining Vector Autoregressio
 </td>
 <td width="50%">
 
-**⚡ Parallel Processing**
+** Parallel Processing**
 - Multi-core model fitting
 - Scales with hardware
 - Cross-validation for time series
@@ -80,7 +80,7 @@ A cutting-edge **econometric modeling framework** combining Vector Autoregressio
 
 <br>
 
-### 🛠️ Service Enhancements
+### Bugfixes courtesy (u/abhilashongit)
 
 <div align="center">
 
@@ -95,7 +95,7 @@ A cutting-edge **econometric modeling framework** combining Vector Autoregressio
 
 <br>
 
-### 🚀 Deployment Ready
+### Deployment ready
 
 <table>
 <tr>
@@ -124,7 +124,7 @@ A cutting-edge **econometric modeling framework** combining Vector Autoregressio
 
 <br>
 
-## 🐛 Critical Bugfixes
+##  Critical Bugfixes
 
 <details>
 <summary><b>🔴 MCR-ALS Non-Negativity Constraints</b> → NaN generation in matrix decomposition</summary>
@@ -188,7 +188,7 @@ python examples/quickstart.py
 
 <br>
 
-## 🛠️ Tech Stack
+## What's the tech stack
 
 <div align="center">
 
@@ -206,7 +206,7 @@ python examples/quickstart.py
 
 <br>
 
-## 📚 Documentation
+##  Documentation (a beautiful site with dark mode, not boring docs, built with responsive design, readable on mobile as well!)
 
 <div align="center">
 
@@ -216,10 +216,10 @@ python examples/quickstart.py
 
 | Resource | Link |
 |----------|------|
-| 🚀 **Quick Start Guide** | [Get Started](https://macroeconomics-ilc-docs.netlify.app/#deployment) |
-| 📊 **API Reference** | [View API Docs](https://macroeconomics-ilc-docs.netlify.app/#model) |
-| 💻 **Technical Specs** | [System Requirements](https://macroeconomics-ilc-docs.netlify.app/#technical) |
-| 📝 **Code Examples** | [Example Notebooks](./examples/) |
+|  **Quick Start Guide** | [Get Started](https://macroeconomics-ilc-docs.netlify.app/#deployment) |
+|  **API Reference** | [View API Docs](https://macroeconomics-ilc-docs.netlify.app/#model) |
+|  **Technical Specs** | [System Requirements](https://macroeconomics-ilc-docs.netlify.app/#technical) |
+|  **Code Examples** | [Example Notebooks](./examples/) |
 
 </div>
 
@@ -229,7 +229,7 @@ python examples/quickstart.py
 
 <br>
 
-## 🤝 Contributing
+##  Contributing
 
 Contributions are welcome! Please feel free to submit a Pull Request.
 
