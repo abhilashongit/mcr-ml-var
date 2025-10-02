@@ -1,0 +1,755 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MCR ML-VAR Documentation</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary-dark: #0a192f;
+            --primary-light: #112240;
+            --accent-blue: #64ffda;
+            --secondary-blue: #3b82f6;
+            --text-light: #ccd6f6;
+            --text-dark: #8892b0;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            background: #ffffff;
+            transition: all 0.3s ease;
+        }
+
+        body.dark {
+            background: var(--primary-dark);
+            color: var(--text-light);
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 20px;
+        }
+
+        /* Header */
+        .header {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border-bottom: 1px solid #e5e5e5;
+            padding: 20px 0;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            z-index: 100;
+            transition: all 0.3s ease;
+        }
+
+        .dark .header {
+            background: rgba(26, 42, 64, 0.95);
+            border-bottom-color: #334155;
+        }
+
+        .header-content {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 20px;
+        }
+
+        .logo h1 {
+            color: var(--secondary-blue);
+            font-size: 28px;
+            font-weight: 700;
+            margin: 0;
+        }
+
+        .logo span {
+            color: #666;
+            font-size: 14px;
+            font-weight: 400;
+        }
+
+        .dark .logo span {
+            color: var(--text-dark);
+        }
+
+        .nav {
+            display: flex;
+            gap: 30px;
+            align-items: center;
+        }
+
+        .nav a {
+            color: #555;
+            text-decoration: none;
+            font-weight: 500;
+            transition: color 0.3s ease;
+            position: relative;
+        }
+
+        .dark .nav a {
+            color: var(--text-dark);
+        }
+
+        .nav a:hover {
+            color: var(--accent-blue);
+        }
+
+        .header-actions {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        /* Buttons */
+        .btn {
+            padding: 12px 24px;
+            border-radius: 8px;
+            font-weight: 600;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            cursor: pointer;
+            border: none;
+            font-size: 14px;
+            transition: all 0.3s ease;
+            font-family: inherit;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, var(--secondary-blue), var(--accent-blue));
+            color: white;
+            box-shadow: 0 4px 15px rgba(59, 130, 246, 0.4);
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(59, 130, 246, 0.6);
+        }
+
+        .btn-outline {
+            border: 2px solid #ddd;
+            color: #555;
+            background: transparent;
+        }
+
+        .dark .btn-outline {
+            border-color: #334155;
+            color: var(--text-light);
+        }
+
+        .btn-outline:hover {
+            border-color: var(--secondary-blue);
+            color: var(--secondary-blue);
+            background: rgba(59, 130, 246, 0.1);
+        }
+
+        .theme-toggle {
+            background: none;
+            border: 2px solid #ddd;
+            color: #555;
+            padding: 10px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 18px;
+            transition: all 0.3s ease;
+            width: 44px;
+            height: 44px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .dark .theme-toggle {
+            border-color: #334155;
+            color: var(--text-light);
+        }
+
+        .theme-toggle:hover {
+            border-color: var(--secondary-blue);
+            color: var(--secondary-blue);
+            transform: scale(1.1);
+        }
+
+        /* Hero Section */
+        .hero {
+            background: linear-gradient(135deg, var(--primary-dark), var(--primary-light));
+            color: white;
+            padding: 120px 0 80px;
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .hero::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: radial-gradient(circle at 20% 50%, rgba(100, 255, 218, 0.15) 0%, transparent 50%),
+                        radial-gradient(circle at 80% 20%, rgba(59, 130, 246, 0.15) 0%, transparent 50%);
+            animation: pulse 4s ease-in-out infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 0.5; }
+            50% { opacity: 0.8; }
+        }
+
+        .hero-content {
+            position: relative;
+            z-index: 2;
+        }
+
+        .hero h1 {
+            font-size: 56px;
+            font-weight: 700;
+            margin-bottom: 24px;
+            line-height: 1.1;
+            background: linear-gradient(135deg, #ffffff, var(--accent-blue));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .hero p {
+            font-size: 20px;
+            color: var(--text-dark);
+            margin-bottom: 40px;
+            max-width: 700px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        .hero-actions {
+            display: flex;
+            gap: 20px;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+
+        /* Main Content */
+        .main {
+            padding-top: 80px;
+        }
+
+        .section {
+            padding: 80px 0;
+        }
+
+        .section:nth-child(even) {
+            background: #f8fafc;
+        }
+
+        .dark .section:nth-child(even) {
+            background: rgba(17, 34, 64, 0.5);
+        }
+
+        .section-title {
+            font-size: 48px;
+            font-weight: 700;
+            margin-bottom: 50px;
+            text-align: center;
+            background: linear-gradient(135deg, var(--secondary-blue), var(--accent-blue));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        /* Cards */
+        .cards {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+            gap: 30px;
+            margin-top: 50px;
+        }
+
+        .card {
+            background: white;
+            border: 1px solid #e5e5e5;
+            border-radius: 16px;
+            padding: 40px;
+            transition: all 0.4s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .dark .card {
+            background: var(--primary-light);
+            border-color: #334155;
+        }
+
+        .card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 4px;
+            background: linear-gradient(135deg, var(--secondary-blue), var(--accent-blue));
+            transform: scaleX(0);
+            transition: transform 0.3s ease;
+        }
+
+        .card:hover::before {
+            transform: scaleX(1);
+        }
+
+        .card:hover {
+            transform: translateY(-8px);
+            box-shadow: 0 25px 50px rgba(0, 0, 0, 0.15);
+            border-color: var(--secondary-blue);
+        }
+
+        .card h3 {
+            font-size: 24px;
+            margin-bottom: 16px;
+            color: var(--secondary-blue);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .card p {
+            color: #666;
+            margin-bottom: 24px;
+            font-size: 16px;
+        }
+
+        .dark .card p {
+            color: var(--text-dark);
+        }
+
+        .card ul {
+            list-style: none;
+            padding: 0;
+        }
+
+        .card li {
+            color: #555;
+            margin-bottom: 12px;
+            padding-left: 24px;
+            position: relative;
+            font-size: 15px;
+        }
+
+        .dark .card li {
+            color: var(--text-light);
+        }
+
+        .card li::before {
+            content: '✓';
+            position: absolute;
+            left: 0;
+            color: var(--accent-blue);
+            font-weight: bold;
+            font-size: 16px;
+        }
+
+        /* Code Blocks */
+        .code-block {
+            background: var(--primary-dark);
+            color: var(--text-light);
+            padding: 24px;
+            border-radius: 12px;
+            font-family: 'JetBrains Mono', 'Monaco', 'Menlo', monospace;
+            font-size: 14px;
+            line-height: 1.6;
+            overflow-x: auto;
+            position: relative;
+            margin: 20px 0;
+            border: 1px solid rgba(100, 255, 218, 0.2);
+        }
+
+        .copy-btn {
+            position: absolute;
+            top: 12px;
+            right: 12px;
+            background: var(--accent-blue);
+            color: var(--primary-dark);
+            border: none;
+            padding: 8px 16px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 12px;
+            font-weight: 600;
+            transition: all 0.2s ease;
+        }
+
+        .copy-btn:hover {
+            background: #4fd1c7;
+            transform: scale(1.05);
+        }
+
+        .copy-btn.copied {
+            background: #10b981;
+            color: white;
+        }
+
+        /* Responsive Design */
+        @media (max-width: 768px) {
+            .hero h1 {
+                font-size: 36px;
+            }
+            
+            .hero p {
+                font-size: 18px;
+            }
+            
+            .nav {
+                display: none;
+            }
+            
+            .header-content {
+                justify-content: space-between;
+            }
+            
+            .cards {
+                grid-template-columns: 1fr;
+            }
+            
+            .hero-actions {
+                flex-direction: column;
+                align-items: center;
+            }
+            
+            .btn {
+                width: 100%;
+                max-width: 300px;
+                justify-content: center;
+            }
+
+            .section-title {
+                font-size: 32px;
+            }
+
+            .card {
+                padding: 24px;
+            }
+        }
+
+        /* Animations */
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .card {
+            animation: fadeInUp 0.6s ease forwards;
+        }
+
+        .card:nth-child(1) { animation-delay: 0.1s; }
+        .card:nth-child(2) { animation-delay: 0.2s; }
+        .card:nth-child(3) { animation-delay: 0.3s; }
+        .card:nth-child(4) { animation-delay: 0.4s; }
+
+        /* Smooth scrolling */
+        html {
+            scroll-behavior: smooth;
+        }
+
+        /* Selection colors */
+        ::selection {
+            background: var(--accent-blue);
+            color: var(--primary-dark);
+        }
+    </style>
+</head>
+<body>
+    <!-- Header -->
+    <header class="header">
+        <div class="container">
+            <div class="header-content">
+                <div class="logo">
+                    <h1>MCR ML-VAR</h1>
+                    <span>Documentation</span>
+                </div>
+                <nav class="nav">
+                    <a href="#home">Home</a>
+                    <a href="#deployment">Deployment</a>
+                    <a href="#technical">Technical Details</a>
+                    <a href="#model">Model Info</a>
+                </nav>
+                <div class="header-actions">
+                    <a href="https://github.com/abhilashongit/mcr-ml-var" target="_blank" class="btn btn-outline">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
+                            <path d="M12 0c-6.626 0-12 5.373-12 12 0 5.302 3.438 9.8 8.207 11.387.599.111.793-.261.793-.577v-2.234c-3.338.726-4.033-1.416-4.033-1.416-.546-1.387-1.333-1.756-1.333-1.756-1.089-.745.083-.729.083-.729 1.205.084 1.839 1.237 1.839 1.237 1.07 1.834 2.807 1.304 3.492.997.107-.775.418-1.305.762-1.604-2.665-.305-5.467-1.334-5.467-5.931 0-1.311.469-2.381 1.236-3.221-.124-.303-.535-1.524.117-3.176 0 0 1.008-.322 3.301 1.23.957-.266 1.983-.399 3.003-.404 1.02.005 2.047.138 3.006.404 2.291-1.552 3.297-1.23 3.297-1.23.653 1.653.242 2.874.118 3.176.77.84 1.235 1.91 1.235 3.221 0 4.609-2.807 5.624-5.479 5.921.43.372.823 1.102.823 2.222v3.293c0 .319.192.694.801.576 4.765-1.589 8.199-6.086 8.199-11.386 0-6.627-5.373-12-12-12z"/>
+                        </svg>
+                        GitHub
+                    </a>
+                    <button class="theme-toggle" onclick="toggleTheme()">
+                        <span id="theme-icon">🌙</span>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- Hero Section -->
+    <section class="hero" id="home">
+        <div class="container">
+            <div class="hero-content">
+                <h1>Machine Learning & Econometric Model Documentation</h1>
+                <p>Professional deployment and technical guidance for VAR model implementation with comprehensive scaling strategies and real-time performance optimization</p>
+                <div class="hero-actions">
+                    <a href="#deployment" class="btn btn-primary">🚀 Get Started with Deployment</a>
+                    <a href="https://github.com/abhilashongit/mcr-ml-var" target="_blank" class="btn btn-outline">📂 View Repository</a>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Main Content -->
+    <main class="main">
+        <!-- Quick Deployment Guide -->
+        <section class="section" id="deployment">
+            <div class="container">
+                <h2 class="section-title">Quick Deployment Guide</h2>
+                
+                <div class="cards">
+                    <div class="card">
+                        <h3>📦 1. Clone Repository</h3>
+                        <p>Download the repository to your local machine and navigate to the project directory</p>
+                        <div class="code-block">
+                            <button class="copy-btn" onclick="copyToClipboard('git clone https://github.com/abhilashongit/mcr-ml-var.git\ncd mcr-ml-var', this)">Copy</button>
+                            <pre>git clone https://github.com/abhilashongit/mcr-ml-var.git
+cd mcr-ml-var</pre>
+                        </div>
+                    </div>
+
+                    <div class="card">
+                        <h3>⚙️ 2. Install Dependencies</h3>
+                        <p>Install all required packages and dependencies for both Node.js and Python environments</p>
+                        <div class="code-block">
+                            <button class="copy-btn" onclick="copyToClipboard('npm install\n# or for Python dependencies\npip install -r requirements.txt', this)">Copy</button>
+                            <pre>npm install
+# or for Python dependencies
+pip install -r requirements.txt</pre>
+                        </div>
+                    </div>
+
+                    <div class="card">
+                        <h3>🔧 3. Environment Setup</h3>
+                        <p>Configure environment variables and settings for your specific deployment needs</p>
+                        <div class="code-block">
+                            <button class="copy-btn" onclick="copyToClipboard('cp .env.example .env\n# Edit .env with your configuration\nnano .env', this)">Copy</button>
+                            <pre>cp .env.example .env
+# Edit .env with your configuration
+nano .env</pre>
+                        </div>
+                    </div>
+
+                    <div class="card">
+                        <h3>🚀 4. Vercel Deployment</h3>
+                        <p>Deploy directly to Vercel for production use with automatic scaling and global CDN</p>
+                        <div class="code-block">
+                            <button class="copy-btn" onclick="copyToClipboard('npm install -g vercel\nvercel login\nvercel --prod', this)">Copy</button>
+                            <pre>npm install -g vercel
+vercel login
+vercel --prod</pre>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Technical Specifications -->
+        <section class="section" id="technical">
+            <div class="container">
+                <h2 class="section-title">Technical Infrastructure</h2>
+                
+                <div class="cards">
+                    <div class="card">
+                        <h3>💻 Minimum Requirements</h3>
+                        <p>Basic specifications for development and small-scale testing</p>
+                        <ul>
+                            <li><strong>CPU:</strong> 4 cores (Intel i5 equivalent)</li>
+                            <li><strong>RAM:</strong> 8GB DDR4</li>
+                            <li><strong>Storage:</strong> 50GB SSD</li>
+                            <li><strong>Network:</strong> 10 Mbps</li>
+                            <li><strong>GPU:</strong> Not required</li>
+                        </ul>
+                    </div>
+
+                    <div class="card">
+                        <h3>🚀 Recommended Specs</h3>
+                        <p>Optimal configuration for production environments and large datasets</p>
+                        <ul>
+                            <li><strong>CPU:</strong> 8 cores (Intel i7/Xeon)</li>
+                            <li><strong>RAM:</strong> 16GB DDR4</li>
+                            <li><strong>Storage:</strong> 100GB NVMe SSD</li>
+                            <li><strong>Network:</strong> 100 Mbps</li>
+                            <li><strong>GPU:</strong> NVIDIA Tesla T4</li>
+                        </ul>
+                    </div>
+
+                    <div class="card">
+                        <h3>⚙️ Runtime Requirements</h3>
+                        <p>Software dependencies and framework versions</p>
+                        <ul>
+                            <li><strong>Node.js:</strong> 18.x or higher</li>
+                            <li><strong>Python:</strong> 3.8+ with NumPy, Pandas</li>
+                            <li><strong>Database:</strong> PostgreSQL 13+</li>
+                            <li><strong>Cache:</strong> Redis 6.x</li>
+                            <li><strong>Web Server:</strong> Nginx/Apache</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- VAR Model Information -->
+        <section class="section" id="model">
+            <div class="container">
+                <h2 class="section-title">VAR Model Implementation</h2>
+                
+                <div class="cards">
+                    <div class="card">
+                        <h3>📊 What is VAR?</h3>
+                        <p>Vector Autoregression (VAR) is a multivariate forecasting algorithm used when two or more time series influence each other. It captures linear interdependencies among multiple time series and is particularly effective for analyzing economic and financial data relationships.</p>
+                    </div>
+
+                    <div class="card">
+                        <h3>🎯 Key Applications</h3>
+                        <p>Real-world use cases where VAR models excel</p>
+                        <ul>
+                            <li>Financial market analysis and prediction</li>
+                            <li>Macroeconomic forecasting</li>
+                            <li>Oil price volatility prediction</li>
+                            <li>Portfolio risk management</li>
+                            <li>Central bank policy analysis</li>
+                            <li>Supply chain optimization</li>
+                        </ul>
+                    </div>
+
+                    <div class="card">
+                        <h3>✨ Advanced Features</h3>
+                        <p>Cutting-edge capabilities included in our implementation</p>
+                        <ul>
+                            <li>Multivariate time series modeling</li>
+                            <li>Automatic lag order selection (AIC/BIC)</li>
+                            <li>Impulse response functions</li>
+                            <li>Forecast error variance decomposition</li>
+                            <li>Granger causality testing</li>
+                            <li>Real-time model updating</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <script>
+        // Theme toggle functionality
+        function toggleTheme() {
+            const body = document.body;
+            const themeIcon = document.getElementById('theme-icon');
+            
+            body.classList.toggle('dark');
+            
+            if (body.classList.contains('dark')) {
+                themeIcon.textContent = '☀️';
+                localStorage.setItem('theme', 'dark');
+            } else {
+                themeIcon.textContent = '🌙';
+                localStorage.setItem('theme', 'light');
+            }
+        }
+
+        // Load saved theme
+        function loadTheme() {
+            const savedTheme = localStorage.getItem('theme');
+            const body = document.body;
+            const themeIcon = document.getElementById('theme-icon');
+            
+            if (savedTheme === 'dark') {
+                body.classList.add('dark');
+                themeIcon.textContent = '☀️';
+            } else {
+                themeIcon.textContent = '🌙';
+            }
+        }
+
+        // Copy to clipboard functionality
+        function copyToClipboard(text, button) {
+            navigator.clipboard.writeText(text).then(function() {
+                const originalText = button.textContent;
+                button.textContent = 'Copied!';
+                button.classList.add('copied');
+                
+                setTimeout(function() {
+                    button.textContent = originalText;
+                    button.classList.remove('copied');
+                }, 2000);
+            }).catch(function(err) {
+                console.error('Failed to copy text: ', err);
+                // Fallback for older browsers
+                const textArea = document.createElement('textarea');
+                textArea.value = text;
+                document.body.appendChild(textArea);
+                textArea.select();
+                document.execCommand('copy');
+                document.body.removeChild(textArea);
+                
+                button.textContent = 'Copied!';
+                setTimeout(function() {
+                    button.textContent = 'Copy';
+                }, 2000);
+            });
+        }
+
+        // Smooth scrolling for anchor links
+        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+            anchor.addEventListener('click', function (e) {
+                e.preventDefault();
+                const target = document.querySelector(this.getAttribute('href'));
+                if (target) {
+                    target.scrollIntoView({
+                        behavior: 'smooth',
+                        block: 'start'
+                    });
+                }
+            });
+        });
+
+        // Initialize theme on page load
+        document.addEventListener('DOMContentLoaded', function() {
+            loadTheme();
+        });
+
+        // Add scroll effect to header
+        let lastScrollY = window.scrollY;
+        window.addEventListener('scroll', () => {
+            const header = document.querySelector('.header');
+            if (window.scrollY > lastScrollY) {
+                header.style.transform = 'translateY(-100%)';
+            } else {
+                header.style.transform = 'translateY(0)';
+            }
+            lastScrollY = window.scrollY;
+        });
+    </script>
+</body>
+</html>
