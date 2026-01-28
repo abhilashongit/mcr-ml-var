@@ -4,110 +4,119 @@ import xgboost as xgb
 import matplotlib.pyplot as plt
 from sklearn.metrics import mean_absolute_error
 
-# --- 1. DATA INGESTION & ROBUST CLEANING cleans ---
+# --- 1. EFFICIENT DATA INGESTION ---
 train_file = 'Crude Oil WTI- Daily 2019-2024.csv'
 test_file = '2025 daily data.xlsx - Sheet1.csv'
 
-def load_and_standardize(path, is_train=True):
-    # Read CSV
+def fast_load_and_process(path, is_train=True):
+    # Optimize: Read only necessary columns if possible, but for cleaning we need all first.
     df = pd.read_csv(path)
     
-    # Fix Dates: Train is DD-MM-YYYY, Test is YYYY-MM-DD
+    # 1. Efficiency: Fast Date Parsing
     df['Date'] = pd.to_datetime(df['Date'], dayfirst=True if is_train else False)
     
-    # Standardize Column Names
+    # Standardize Names
+    rename_map = {'Vol.': 'Volume', 'Change %': 'Change_Pct'} if is_train else {'Change': 'Change_Pct'}
+    df.rename(columns=rename_map, inplace=True)
+    
+    # 1. Efficiency: Vectorized String Operations (Faster than apply/map)
+    # Handle Volume 'K' and 'M' and ',' removal
+    vol_str = df['Volume'].astype(str).str.replace(',', '', regex=False)
+    
+    # Create multipliers: 1e6 for 'M', 1e3 for 'K', 1 for others
+    multipliers = vol_str.str.extract(r'([KM])')[0].map({'K': 1e3, 'M': 1e6}).fillna(1)
+    numeric_part = pd.to_numeric(vol_str.str.replace(r'[KM]', '', regex=True), errors='coerce')
+    
+    # 1. Efficiency: Downcast to float32 to save memory
+    df['Volume'] = (numeric_part * multipliers).astype('float32')
+    
     if is_train:
-        df = df.rename(columns={'Vol.': 'Volume', 'Change %': 'Change_Pct'})
-    else:
-        df = df.rename(columns={'Change': 'Change_Pct'})
+        df['Change_Pct'] = df['Change_Pct'].astype(str).str.replace('%', '').astype('float32') / 100
     
-    # Clean Volume: Convert "150K" or "1M" to float
-    df['Volume'] = df['Volume'].astype(str).replace({'K': '*1e3', 'M': '*1e6', ',': ''}, regex=True).map(pd.eval).astype(float)
-    
-    # Clean Change %: Ensure both are decimals (e.g., 1.02% -> 0.0102)
-    if is_train:
-        df['Change_Pct'] = df['Change_Pct'].astype(str).str.replace('%', '').astype(float) / 100
-    
-    # Sort and aggregate to Weekly
+    # Aggregation to Weekly
     df = df.sort_values('Date').set_index('Date')
     weekly = df.resample('W-MON').agg({
-        'High': 'max',
-        'Low': 'min',
-        'Price': 'last',
-        'Volume': 'sum',
-        'Change_Pct': 'mean'
+        'High': 'max', 'Low': 'min', 'Price': 'last',
+        'Volume': 'sum', 'Change_Pct': 'mean'
     }).dropna()
     
-    # Dependent Variable: Weekly Range
-    weekly['Range'] = weekly['High'] - weekly['Low']
+    weekly['Range'] = (weekly['High'] - weekly['Low']).astype('float32')
     return weekly
 
-# Load dataframes
-train_weekly = load_and_standardize(train_file, is_train=True)
-test_weekly = load_and_standardize(test_file, is_train=False)
+train_weekly = fast_load_and_process(train_file, is_train=True)
+test_weekly = fast_load_and_process(test_file, is_train=False)
 
-# --- 2. VOLATILITY WEIGHTING LOGIC ---
-def prepare_features(df, apply_weights=False):
+# --- 2. TREND CONTEXT & ADAPTIVE WEIGHTS ---
+def prepare_advanced_features(df, is_train=True):
     df = df.copy()
-    # Independent Variables: Lagged volume and lagged change to predict current range
+    
+    # A. Immediate Context (The original logic)
     df['Lag_Vol'] = df['Volume'].shift(1)
-    df['Lag_Change'] = df['Change_Pct'].shift(1).abs() # Absolute movement intensity
     df['Lag_Range'] = df['Range'].shift(1)
+    
+    # B. Trend Context (User Request: "Analysis of earlier weeks")
+    # This helps identify if a crisis is "receding" (Avg is dropping) or "building"
+    df['Rolling_Mean_4W'] = df['Range'].rolling(window=4).mean().shift(1)  # 1-month trend
+    df['Rolling_Mean_8W'] = df['Range'].rolling(window=8).mean().shift(1)  # 2-month trend
+    
+    # Momentum: Is the range expanding or contracting compared to last month?
+    df['Momentum'] = df['Lag_Range'] / (df['Rolling_Mean_4W'] + 1e-5) 
+
     df = df.dropna()
     
     weights = None
-    if apply_weights:
-        # Calculate Volatility Variance (Rolling Std Dev of the Range)
-        # Higher volatility = Higher weight in the Loss Function
+    if is_train:
+        # C. Volatility Weighting
         vol_variance = df['Range'].rolling(window=4).std().fillna(df['Range'].std())
-        weights = (vol_variance / vol_variance.mean()).values
+        vol_weights = (vol_variance / vol_variance.mean())
+        
+        # D. Time-Decay (User Request: "Avoid old data traces")
+        # Creates a decay factor from 0.5 (oldest) to 1.0 (newest)
+        # This makes recent data ~2x more important than 2019 data
+        n_samples = len(df)
+        time_decay = np.linspace(0.5, 1.0, n_samples)
+        
+        # Final Weights = Volatility (Panic factor) * Time Decay (Recency factor)
+        weights = vol_weights * time_decay
         
     return df, weights
 
-train_df, train_w = prepare_features(train_weekly, apply_weights=True)
-test_df, _ = prepare_features(test_weekly)
+train_df, train_w = prepare_advanced_features(train_weekly, is_train=True)
+test_df, _ = prepare_advanced_features(test_weekly, is_train=False)
 
-# --- 3. XGBOOST MODEL (WLS APPROACH) ---
-X_train = train_df[['Lag_Vol', 'Lag_Change', 'Lag_Range']]
+# --- 3. XGBOOST MODEL ---
+features = ['Lag_Vol', 'Lag_Range', 'Rolling_Mean_4W', 'Rolling_Mean_8W', 'Momentum']
+X_train = train_df[features]
 y_train = train_df['Range']
 
-X_test = test_df[['Lag_Vol', 'Lag_Change', 'Lag_Range']]
+X_test = test_df[features]
 y_actual = test_df['Range']
 
-# Model tuned for dynamic responsiveness
 model = xgb.XGBRegressor(
     objective='reg:squarederror',
-    n_estimators=1500,
-    learning_rate=0.02,
-    max_depth=7,
-    subsample=0.9,
-    colsample_bytree=0.9,
-    random_state=42
+    n_estimators=2000,       # Increased slightly for more complex features
+    learning_rate=0.015,     # Lower learning rate for better generalization
+    max_depth=6,
+    subsample=0.85,
+    colsample_bytree=0.85,
+    random_state=42,
+    n_jobs=-1                # 1. Efficiency: Use all CPU cores
 )
 
-# Fit model using the calculated volatility weights
 model.fit(X_train, y_train, sample_weight=train_w)
 
-# --- 4. PREDICTIONS & OUTPUT ---
+# --- 4. PREDICTIONS & VISUALIZATION ---
 preds = model.predict(X_test)
-test_df['Estimated_Range_2025'] = preds
+test_df['Estimated_Range'] = preds
 
-# Save to Excel
-test_df[['Range', 'Estimated_Range_2025']].to_excel('Weekly_Estimated_Range_2025.xlsx')
-print("Successfully generated: Weekly_Estimated_Range_2025.xlsx")
-
-# --- 5. VISUALIZATION ---
+# Visualization
 plt.figure(figsize=(14, 6))
-plt.plot(test_df.index, y_actual, label='Actual Range (2025)', color='black', alpha=0.6, linewidth=2)
-plt.plot(test_df.index, preds, label='XGBoost Estimated Range (WLS)', color='red', linestyle='--', linewidth=2)
-
-plt.fill_between(test_df.index, y_actual, preds, color='red', alpha=0.1, label='Prediction Delta')
-plt.title('Crude Oil WTI: Weekly Price Range Prediction (Volatility-Weighted)')
-plt.ylabel('Price Movement Range ($)')
-plt.xlabel('2025 Timeline')
+plt.plot(test_df.index, y_actual, label='Actual Range', color='black', alpha=0.6)
+plt.plot(test_df.index, preds, label='Prediction (Trend-Aware + Decayed Weights)', color='blue', linestyle='--')
+plt.fill_between(test_df.index, y_actual, preds, color='blue', alpha=0.1)
+plt.title('Crude Oil WTI: Prediction with Trend Context & Time Decay')
 plt.legend()
 plt.grid(True, linestyle=':', alpha=0.7)
 plt.show()
 
-mae = mean_absolute_error(y_actual, preds)
-print(f"Final Model MAE: {mae:.4f}")
+print(f"Model MAE: {mean_absolute_error(y_actual, preds):.4f}")
